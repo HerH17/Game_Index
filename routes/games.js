@@ -78,12 +78,8 @@ router.get('/search', async (req, res) => {
  */
 router.get('/popular', async (req, res) => {
     try {
-<<<<<<< HEAD
         const games = await igdbService.getPopularGames(100);
-=======
-        const games = await igdbService.getPopularGames(20);
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
-
+        
         const formattedGames = games.map(game => {
             let coverUrl = null;
             
