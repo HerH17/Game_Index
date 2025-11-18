@@ -5,7 +5,6 @@ let currentFilter = 'all';
 let allGames = [];
 
 // ========================================
-<<<<<<< HEAD
 // UTILIDAD: Manejar imágenes faltantes
 // ========================================
 
@@ -38,8 +37,6 @@ function handleImageError(imgElement) {
 }
 
 // ========================================
-=======
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
 // INICIALIZACIÓN
 // ========================================
 
@@ -103,12 +100,8 @@ function renderGames(games) {
     }
 
     grid.innerHTML = games.map(game => {
-<<<<<<< HEAD
         // ✅ FIX: Usar función para validar portada
         const coverImage = getValidCoverUrl(game.coverUrl);
-=======
-        const coverImage = game.coverUrl || '/img/no-cover.jpg';
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
         const stars = game.userRating ? '⭐'.repeat(Math.min(5, Math.ceil(game.userRating / 2))) : '';
         const hoursText = game.hoursPlayed > 0 ? `${game.hoursPlayed}h` : '0h';
 
@@ -119,11 +112,7 @@ function renderGames(games) {
                      class="card-img-top" 
                      alt="${game.gameName}"
                      style="height: 380px; object-fit: contain; object-position: center; background-color: #1a1a1a;"
-<<<<<<< HEAD
                      onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/1a1a2e/00d4ff?text=Sin+Portada';">
-=======
-                     onerror="this.onerror=null; this.src='/img/no-cover.jpg';">
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                 
                 <div class="card-body d-flex flex-column p-3">
                     <h6 class="card-title mb-3 fw-bold text-center" style="color: #ffffff; font-size: 1.1rem;">${game.gameName}</h6>
@@ -204,7 +193,6 @@ function getStatusBadgeClass(status) {
 }
 
 // ========================================
-<<<<<<< HEAD
 // SISTEMA DE FILTROS AVANZADOS
 // ========================================
 
@@ -214,11 +202,6 @@ let currentFilters = {
     sortBy: 'recent'
 };
 
-=======
-// BÚSQUEDA DE JUEGOS (IGDB)
-// ========================================
-
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
 let searchTimeout;
 
 function setupEventListeners() {
@@ -231,11 +214,7 @@ function setupEventListeners() {
             
             if (query.length < 2) {
                 document.getElementById('searchResults').innerHTML = `
-<<<<<<< HEAD
                     <div class="col-12 text-center text-light">
-=======
-                    <div class="col-12 text-center text-muted">
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                         <p>Escribe al menos 2 caracteres para buscar...</p>
                     </div>
                 `;
@@ -246,7 +225,6 @@ function setupEventListeners() {
         });
     }
 
-<<<<<<< HEAD
     // ✅ NUEVO: Filtros por estado
     document.querySelectorAll('[data-filter-status]').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -297,24 +275,6 @@ function setupEventListeners() {
         });
     }
 
-=======
-    document.querySelectorAll('[data-filter]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            const filter = e.target.dataset.filter;
-            currentFilter = filter;
-            
-            const filtered = filter === 'all' 
-                ? allGames 
-                : allGames.filter(g => g.status === filter);
-            
-            renderGames(filtered);
-        });
-    });
-
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
     const editForm = document.getElementById('editGameForm');
     if (editForm) {
         editForm.addEventListener('submit', (e) => {
@@ -324,7 +284,6 @@ function setupEventListeners() {
     }
 }
 
-<<<<<<< HEAD
 // ========================================
 // APLICAR FILTROS
 // ========================================
@@ -380,8 +339,6 @@ function updateFilterCount(filtered, total) {
 // BÚSQUEDA DE JUEGOS (IGDB)
 // ========================================
 
-=======
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
 async function searchGames(query) {
     const resultsContainer = document.getElementById('searchResults');
     
@@ -401,11 +358,7 @@ async function searchGames(query) {
         
         if (data.games.length === 0) {
             resultsContainer.innerHTML = `
-<<<<<<< HEAD
                 <div class="col-12 text-center text-light">
-=======
-                <div class="col-12 text-center text-muted">
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                     <p>No se encontraron juegos. Intenta con otro término.</p>
                 </div>
             `;
@@ -413,12 +366,8 @@ async function searchGames(query) {
         }
 
         resultsContainer.innerHTML = data.games.map(game => {
-<<<<<<< HEAD
             // ✅ FIX: Usar getValidCoverUrl() aquí también
             const coverImage = getValidCoverUrl(game.cover);
-=======
-            const coverImage = game.cover || '/img/no-cover.jpg';
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
             const safeName = game.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             const safeCover = coverImage.replace(/'/g, "\\'");
 
@@ -431,11 +380,7 @@ async function searchGames(query) {
                                  class="img-fluid rounded-start" 
                                  alt="${safeName}"
                                  style="height: 150px; object-fit: cover; width: 100%; background-color: #1a1a1a;"
-<<<<<<< HEAD
                                  onerror="this.onerror=null; this.src='https://via.placeholder.com/150x150/1a1a2e/00d4ff?text=Sin+Portada';">
-=======
-                                 onerror="this.onerror=null; this.src='/img/no-cover.jpg';">
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                         </div>
                         <div class="col-8">
                             <div class="card-body p-2">
@@ -475,7 +420,6 @@ function addGameToLibrary(igdbId, gameName, coverUrl) {
     openAddGameModal(igdbId, gameName, coverUrl);
 }
 
-<<<<<<< HEAD
 // ========================================
 // MODAL AGREGAR JUEGO MEJORADO ✨
 // ========================================
@@ -509,29 +453,6 @@ function openAddGameModal(igdbId, gameName, coverUrl) {
                                         <i class="fas fa-flag-checkered me-2"></i>Estado del juego
                                     </label>
                                     <select class="form-select custom-input" id="addStatus" style="background: rgba(15, 52, 96, 0.4); border: 1px solid #00d4ff; color: #ffffff;">
-=======
-function openAddGameModal(igdbId, gameName, coverUrl) {
-    const modalHTML = `
-        <div class="modal fade" id="addGameDetailModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content custom-modal-bg">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title" style="color: #ffffff;">${gameName}</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <img src="${coverUrl || '/img/no-cover.jpg'}" 
-                                     class="img-fluid rounded mb-3" 
-                                     alt="${gameName}"
-                                     style="width: 100%; object-fit: contain; background-color: #1a1a1a;"
-                                     onerror="this.onerror=null; this.src='/img/no-cover.jpg';">
-                                
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: #ffffff;">Estado del juego:</label>
-                                    <select class="form-select custom-input" id="addStatus">
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                                         <option value="Pendiente" selected>⏸ Pendiente</option>
                                         <option value="Jugando">▶ En progreso</option>
                                         <option value="Completado">✓ Completado</option>
@@ -541,7 +462,6 @@ function openAddGameModal(igdbId, gameName, coverUrl) {
                                 </div>
                             </div>
                             
-<<<<<<< HEAD
                             <!-- Columna Derecha -->
                             <div class="col-md-8">
                                 <div class="mb-3">
@@ -563,28 +483,12 @@ function openAddGameModal(igdbId, gameName, coverUrl) {
                                         <option value="PlayStation 4">PlayStation 4</option>
                                         <option value="Xbox Series X/S">Xbox Series X/S</option>
                                         <option value="Xbox One">Xbox One</option>
-=======
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: #ffffff;">Horas jugadas:</label>
-                                    <input type="number" class="form-control custom-input" 
-                                           id="addHours" value="0" min="0" step="0.5">
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: #ffffff;">Plataforma:</label>
-                                    <select class="form-select custom-input" id="addPlatform">
-                                        <option value="PC" selected>PC</option>
-                                        <option value="PlayStation 5">PlayStation 5</option>
-                                        <option value="Xbox Series X/S">Xbox Series X/S</option>
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                                         <option value="Nintendo Switch">Nintendo Switch</option>
                                         <option value="Otro">Otro</option>
                                     </select>
                                 </div>
                                 
                                 <div class="mb-3">
-<<<<<<< HEAD
                                     <label class="form-label small text-uppercase fw-bold mb-2" style="color: #00d4ff; letter-spacing: 1px;">
                                         <i class="fas fa-star me-2"></i>Calificación (1-5 estrellas)
                                     </label>
@@ -597,21 +501,11 @@ function openAddGameModal(igdbId, gameName, coverUrl) {
                                             `).join('')}
                                         </div>
                                         <small class="text-light mt-2 d-block">Haz clic en una estrella para calificar</small>
-=======
-                                    <label class="form-label" style="color: #ffffff;">Calificación (1-5 estrellas):</label>
-                                    <div class="star-rating" id="addStarRating">
-                                        ${[1, 2, 3, 4, 5].map(star => `
-                                            <span class="star" data-rating="${star}" 
-                                                  onclick="setAddRating(${star})"
-                                                  style="cursor: pointer; font-size: 2rem; color: #6c757d;">★</span>
-                                        `).join('')}
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                                     </div>
                                     <input type="hidden" id="addRating" value="0">
                                 </div>
                                 
                                 <div class="mb-3">
-<<<<<<< HEAD
                                     <label class="form-label small text-uppercase fw-bold mb-2" style="color: #00d4ff; letter-spacing: 1px;">
                                         <i class="fas fa-comment-dots me-2"></i>Reseña
                                     </label>
@@ -619,16 +513,10 @@ function openAddGameModal(igdbId, gameName, coverUrl) {
                                               placeholder="Escribe tu reseña aquí... ¿Qué te pareció el juego?"
                                               style="background: rgba(15, 52, 96, 0.4); border: 1px solid #0f3460; color: #ffffff; resize: none;"></textarea>
                                     <small class="text-light">Comparte tu experiencia con este juego</small>
-=======
-                                    <label class="form-label" style="color: #ffffff;">Reseña:</label>
-                                    <textarea class="form-control custom-input" id="addReview" rows="5" 
-                                              placeholder="Escribe tu reseña aquí..."></textarea>
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                                 </div>
                             </div>
                         </div>
                         
-<<<<<<< HEAD
                         <div class="d-flex gap-3 mt-4">
                             <button type="button" class="btn btn-outline-light flex-grow-1 py-2" data-bs-dismiss="modal" style="border-width: 2px;">
                                 <i class="fas fa-times me-2"></i>Cancelar
@@ -637,12 +525,6 @@ function openAddGameModal(igdbId, gameName, coverUrl) {
                                     onclick="confirmAddGame(${igdbId}, '${gameName.replace(/'/g, "\\'")}', '${validCoverUrl.replace(/'/g, "\\'")}')">
                                 <i class="fas fa-check me-2"></i>Añadir a Mi Biblioteca
                             </button>
-=======
-                        <div class="d-flex gap-2 mt-3">
-                            <button type="button" class="btn btn-secondary flex-grow-1" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="button" class="btn btn-neon flex-grow-1" 
-                                    onclick="confirmAddGame(${igdbId}, '${gameName.replace(/'/g, "\\'")}', '${(coverUrl || '').replace(/'/g, "\\'")}')">Añadir</button>
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                         </div>
                     </div>
                 </div>
@@ -667,7 +549,6 @@ function setAddRating(rating) {
     document.getElementById('addRating').value = rating;
     
     document.querySelectorAll('#addStarRating .star').forEach((star, index) => {
-<<<<<<< HEAD
         if (index < rating) {
             star.style.color = '#ffd700';
             star.style.textShadow = '0 0 10px rgba(255, 215, 0, 0.5)';
@@ -675,9 +556,6 @@ function setAddRating(rating) {
             star.style.color = '#444';
             star.style.textShadow = 'none';
         }
-=======
-        star.style.color = index < rating ? '#ffc107' : '#6c757d';
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
     });
 }
 
@@ -688,11 +566,7 @@ async function confirmAddGame(igdbId, gameName, coverUrl) {
     const gameData = {
         igdbId,
         gameName,
-<<<<<<< HEAD
         coverUrl: coverUrl || 'https://via.placeholder.com/300x400/1a1a2e/00d4ff?text=Sin+Portada',
-=======
-        coverUrl: coverUrl || '/img/no-cover.jpg',
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
         status: document.getElementById('addStatus').value,
         platform: document.getElementById('addPlatform').value,
         userRating: rating > 0 ? rating * 2 : null,
@@ -753,11 +627,7 @@ function showSuccessMessage(message) {
 }
 
 // ========================================
-<<<<<<< HEAD
 // MODAL DE DETALLES/RESEÑA (MEJORADO) ✨
-=======
-// MODAL DE DETALLES/RESEÑA (SOLO LECTURA)
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
 // ========================================
 
 function openDetailModal(gameId) {
@@ -767,12 +637,9 @@ function openDetailModal(gameId) {
     const rating = game.userRating ? Math.ceil(game.userRating / 2) : 0;
     const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
     
-<<<<<<< HEAD
     // ✅ FIX: Usar getValidCoverUrl() aquí también
     const validCoverUrl = getValidCoverUrl(game.coverUrl);
     
-=======
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
     const modalHTML = `
         <div class="modal fade" id="detailModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
@@ -787,19 +654,11 @@ function openDetailModal(gameId) {
                         <div class="row g-4">
                             <!-- Columna Izquierda: Portada y Estado -->
                             <div class="col-md-4">
-<<<<<<< HEAD
                                 <img src="${validCoverUrl}" 
                                      class="img-fluid rounded shadow-lg mb-3" 
                                      alt="${game.gameName}"
                                      style="width: 100%; object-fit: contain; background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); border: 2px solid #00d4ff;"
                                      onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400/1a1a2e/00d4ff?text=Sin+Portada';">
-=======
-                                <img src="${game.coverUrl || '/img/no-cover.jpg'}" 
-                                     class="img-fluid rounded shadow-lg mb-3" 
-                                     alt="${game.gameName}"
-                                     style="width: 100%; object-fit: contain; background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); border: 2px solid #00d4ff;"
-                                     onerror="this.onerror=null; this.src='/img/no-cover.jpg';">
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
                                 
                                 <!-- Estado del juego -->
                                 <div class="mb-3">
@@ -899,10 +758,6 @@ function openDetailModal(gameId) {
     });
 }
 
-<<<<<<< HEAD
-=======
-// Mantener la función auxiliar para cerrar y abrir edición
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
 function closeDetailAndOpenEdit(gameId) {
     const detailModal = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
     if (detailModal) detailModal.hide();
@@ -910,18 +765,6 @@ function closeDetailAndOpenEdit(gameId) {
     setTimeout(() => openEditModal(gameId), 300);
 }
 
-<<<<<<< HEAD
-=======
-function closeDetailAndOpenEdit(gameId) {
-    // Cerrar modal de reseña
-    const detailModal = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
-    if (detailModal) detailModal.hide();
-    
-    // Abrir modal de edición
-    setTimeout(() => openEditModal(gameId), 300);
-}
-
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
 // ========================================
 // MODAL DE EDITAR (TODOS LOS CAMPOS EDITABLES)
 // ========================================

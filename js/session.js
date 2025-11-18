@@ -41,11 +41,7 @@ function updateDashboardUI() {
     const currentPage = window.location.pathname.split('/').pop();
     
     // Páginas que usan el header con usuario logueado
-<<<<<<< HEAD
     const protectedPages = ['dashboard.html', 'library.html', 'reviews.html', 'games.html'];
-=======
-    const protectedPages = ['dashboard.html', 'library.html'];
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
     
     if (protectedPages.includes(currentPage) && storedUsername) {
         // Actualizar nombre de usuario en el header

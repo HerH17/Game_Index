@@ -6,11 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentPage = window.location.pathname.split('/').pop();
     
     // Solo ejecutar en index.html
-<<<<<<< HEAD
     if ((currentPage === 'index.html' || currentPage === 'games.html' || currentPage === '') && storedUsername) {
-=======
-    if ((currentPage === 'index.html' || currentPage === '') && storedUsername) {
->>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
         updateIndexNavigation(storedUsername);
     }
 });
