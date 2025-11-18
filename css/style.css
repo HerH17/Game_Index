@@ -1,0 +1,170 @@
+:root {
+  --color-bg: #0d0d0d;
+  --color-header: rgba(26,26,26,0.7);
+  --color-primary: #00bfff;
+  --color-accent: #1f8fff;
+  --color-text: #f2f2f2;
+  --color-muted: #9b9b9b;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+h1,h2,h3,h6 { font-family: 'Montserrat', sans-serif; }
+
+/* NAVBAR */
+header.navbar {
+  backdrop-filter: blur(6px);
+  padding: 0.25rem 1rem;
+}
+.navbar-brand img { width: 90px; border-radius: 6px; }
+.nav-link { color: var(--color-text) !important; transition: color 0.3s; font-weight: 500; }
+.nav-link:hover, .nav-link.active { color: var(--color-primary) !important; }
+.btn-neon { border: 2px solid var(--color-primary); color: white; background-color: black; font-weight:600; transition: all 0.3s; }
+.btn-neon:hover { background-color: var(--color-primary); color: black; }
+
+/* HERO VIDEO */
+.hero-section { position: relative; height: 500px; overflow: hidden; display:flex; align-items:center; justify-content:center; }
+.hero-section video { width: 100%; height: 100%; object-fit: cover; }
+.hero-overlay { position:absolute; inset:0; background-color: rgba(0,0,0,0.55); }
+.hero-text-container { position:absolute; text-align:center; color: var(--color-primary); z-index:2; }
+.hero-title { font-size: 4rem; font-weight:700; line-height:1.1; margin-bottom:0.5rem; }
+.hero-subtitle { font-size:1.5rem; font-weight:500; color: #cceeff; }
+
+/* SEARCH INPUT */
+.search-input { width: 220px; height:35px; background: #222; color: #fff; border:1px solid #333; font-size:0.95rem; border-radius:6px; padding:0 10px; }
+.search-input::placeholder { color: #aaa; font-style:normal; }
+
+/* CARDS */
+.games-section { margin-top: 40px; }
+.card { border-radius:10px; background:#1a1a1a; overflow:hidden; }
+.card-carousel img { width:100%; height:200px; object-fit:cover; border-radius:10px; }
+
+
+/* FOOTER */
+footer { background: #1a1a1a; font-size:0.85rem; padding: 1.5rem 1rem; margin-top:3rem; }
+footer h6 { color: var(--color-primary); font-weight:600; margin-bottom:0.5rem; }
+footer a { color: var(--color-muted); transition: color 0.3s; }
+footer a:hover { color: var(--color-primary); }
+
+/* Cambiar color del copyright para que coincida con links de info */
+footer .copyright-text { color: var(--color-muted); }
+
+
+/* --- LOGIN MODAL STYLES --- */
+.custom-modal-bg {
+  background-color: #1a1a1a; /* Fondo oscuro de la modal */
+  color: var(--color-text);
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+.modal-title {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%); /* Hace que el botón de cerrar sea blanco */
+}
+
+/* Estilo para los campos de formulario dentro de la modal */
+.custom-input {
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-input:focus {
+  background: #222;
+  color: #fff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(0, 191, 255, 0.25); /* Sombra neón */
+}
+
+/* Estilo para los enlaces de ayuda */
+.modal-link {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.modal-link:hover {
+  color: var(--color-primary);
+}
+
+
+/* --- ELIMINAR FLECHAS (SPINNERS) DE LOS INPUTS NUMÉRICOS (EDAD) --- */
+
+/* Para Chrome, Edge, Safari */
+.no-spinners::-webkit-outer-spin-button,
+.no-spinners::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Para Firefox */
+.no-spinners {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+
+@media (min-width:992px){
+  .hero-title { font-size:5rem; }
+  .hero-subtitle { font-size:1.75rem; }
+}
+
+/***Dashboard***
+/* -----------------------------------------------------
+   ESTILOS ESPECÍFICOS DEL DASHBOARD (Títulos Laterales)
+   ----------------------------------------------------- */
+
+/* Usamos la nueva clase 'sidebar-title' y el color blanco/neón */
+.sidebar-title {
+    color: #fff !important; /* Usamos !important AQUÍ solo para sobrescribir 'text-muted' de Bootstrap */
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* 2. Estilo para los enlaces normales en la barra lateral */
+#sidebarMenu .nav-link {
+    color: #ccc; /* Gris claro */
+    font-weight: 400;
+    padding: 0.5rem 1rem;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+/* 3. Estilo al pasar el ratón (hover) */
+#sidebarMenu .nav-link:hover {
+    color: var(--color-neon); 
+    background-color: #222; 
+}
+
+/* 4. Estilo para el enlace ACTIVO */
+#sidebarMenu .nav-link.active {
+    color: var(--color-neon); 
+    background-color: rgba(30, 255, 230, 0.1); 
+    font-weight: 600;
+    border-radius: 4px;
+}
+
+/*Dashboard*/
+.container-dashboard{
+  margin-top: 225px;
+}
+
+
+<<<<<<< HEAD
+.placeholder-l::placeholder{
+  color: #ffffff;
+}
+=======
+>>>>>>> 6043dcf34de6497e2a82975ca57596b01df47496
