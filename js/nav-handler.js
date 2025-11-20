@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentPage = window.location.pathname.split('/').pop();
     
     // Solo ejecutar en index.html
-    if ((currentPage === 'index.html' || currentPage === 'games.html' || currentPage === '') && storedUsername) {
+    if ((currentPage === 'index.html' || currentPage === 'games.html' || currentPage === 'reviews-public.html' || currentPage === '') && storedUsername) {
         updateIndexNavigation(storedUsername);
     }
 });

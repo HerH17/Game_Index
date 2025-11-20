@@ -1,9 +1,10 @@
-// routes/games.js
+// routes/games.js - ORDEN CORREGIDO
 
 const express = require('express');
 const router = express.Router();
 const igdbService = require('../services/igdbService');
 const TrackerEntry = require('../models/trackerEntry');
+const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 
 // ========================================
@@ -26,7 +27,6 @@ router.get('/search', async (req, res) => {
 
         const games = await igdbService.searchGames(q, 50);
 
-        // Filtrar contenido no oficial (mods, actualizaciones gratuitas)
         const officialGames = games.filter(game => {
             const name = game.name.toLowerCase();
             
@@ -46,9 +46,6 @@ router.get('/search', async (req, res) => {
             
             if (game.cover?.image_id) {
                 coverUrl = igdbService.formatCoverUrl(game.cover.image_id, 'cover_big');
-                console.log(`✅ Cover generada: ${game.name} -> ${coverUrl}`);
-            } else {
-                console.log(`⚠️  Sin portada: ${game.name} (cover: ${JSON.stringify(game.cover)})`);
             }
             
             return {
@@ -63,7 +60,6 @@ router.get('/search', async (req, res) => {
             };
         });
 
-        console.log(`📊 Resultados: ${formattedGames.length} juegos (${formattedGames.filter(g => g.cover).length} con portada)`);
         res.json({ games: formattedGames });
 
     } catch (error) {
@@ -93,6 +89,7 @@ router.get('/popular', async (req, res) => {
                 cover: coverUrl,
                 releaseDate: game.first_release_date,
                 genres: game.genres?.map(g => g.name) || [],
+                platforms: game.platforms?.map(p => p.name) || [],
                 rating: game.rating ? Math.round(game.rating) : null,
                 summary: game.summary
             };
@@ -103,6 +100,60 @@ router.get('/popular', async (req, res) => {
     } catch (error) {
         console.error('Error obteniendo juegos populares:', error);
         res.status(500).json({ message: 'Error al obtener juegos populares.' });
+    }
+});
+
+// ========================================
+// ⚠️ RESEÑAS PÚBLICAS - DEBE IR ANTES DE /:id
+// ========================================
+
+/**
+ * GET /api/games/reviews/public
+ * Obtener TODAS las reseñas públicas (sin autenticación)
+ */
+router.get('/reviews/public', async (req, res) => {
+    try {
+        const entries = await TrackerEntry.find({
+            notes: { $exists: true, $ne: '' }
+        })
+        .sort({ updatedAt: -1 })
+        .limit(100)
+        .lean();
+
+        if (entries.length === 0) {
+            return res.json({ 
+                reviews: [],
+                total: 0
+            });
+        }
+
+        const userIds = [...new Set(entries.map(entry => entry.userId.toString()))];
+        
+        const users = await User.find(
+            { _id: { $in: userIds } },
+            { username: 1 }
+        );
+        
+        const userMap = {};
+        users.forEach(user => {
+            userMap[user._id.toString()] = user.username;
+        });
+        
+        const reviewsWithUsernames = entries.map(entry => ({
+            ...entry,
+            username: userMap[entry.userId.toString()] || 'Anónimo'
+        }));
+
+        console.log(`✅ ${reviewsWithUsernames.length} reseñas públicas obtenidas`);
+
+        res.json({ 
+            reviews: reviewsWithUsernames,
+            total: reviewsWithUsernames.length
+        });
+
+    } catch (error) {
+        console.error('Error obteniendo reseñas públicas:', error);
+        res.status(500).json({ message: 'Error al obtener reseñas públicas.' });
     }
 });
 
@@ -249,6 +300,10 @@ router.delete('/library/:id', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar juego.' });
     }
 });
+
+// ========================================
+// ⚠️ ESTA DEBE SER LA ÚLTIMA RUTA
+// ========================================
 
 /**
  * GET /api/games/:id
