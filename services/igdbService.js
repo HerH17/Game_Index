@@ -113,7 +113,7 @@ class IGDBService {
             const response = await axios.post(
                 'https://api.igdb.com/v4/games',
                 `
-                fields name, cover.image_id, first_release_date, genres.name, rating, summary;
+                fields name, cover.image_id, first_release_date, genres.name, platforms.name, rating, summary;
                 where rating > 80 & rating_count > 50;
                 sort rating desc;
                 limit ${limit};
