@@ -110,7 +110,7 @@ function renderReviews(reviews, username) {
                                     ? `<span style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">${stars}</span>` 
                                     : '<span style="color: #555;">☆☆☆☆☆</span>'}
                             </div>
-                            ${rating > 0 ? `<small class="text-muted">${rating}/5</small>` : ''}
+                            ${rating > 0 ? `<small class="text-light">${rating}/5</small>` : ''}
                         </div>
 
                         <!-- Estado -->
@@ -129,15 +129,15 @@ function renderReviews(reviews, username) {
                                     ${review.gameName}
                                 </h4>
                                 <div class="text-muted small">
-                                    <i class="fas fa-user-circle me-2" strong style="color:#ffffff"></i>
+                                    <strong style="color: #ffffff;"><i class="fas fa-user-circle me-2"></i></strong>
                                     <strong style="color: #ffffff;">Por ${username}</strong>
-                                    <span class="mx-2" strong style="color: #ffffff">•</span>
-                                    <i class="far fa-calendar-alt me-2" strong style="color: #ffffff"></i>
-                                    <span strong style="color: #ffffff">${reviewDate}</span>
-                                    <span class="mx-2" strong style="color: #ffffff">•</span>
-                                    <i class="fas fa-gamepad me-2" strong style="color: #ffffff"></i>
-                                    <span strong style="color: #ffffff">${review.platform}</span>
-                                    ${review.hoursPlayed > 0 ? `<span class="mx-2" strong style="color: #ffffff">•</span><i class="far fa-clock me-2" strong style="color: #ffffff"></i><span strong style="color: #ffffff">${review.hoursPlayed}h jugadas </span>` : ''}
+                                    <strong style="color: #ffffff;"><span class="mx-2">•</span></strong>
+                                    <strong style="color: #ffffff;"><i class="far fa-calendar-alt me-2"></i></strong>
+                                    <strong style="color: #ffffff;">${reviewDate}</strong>
+                                    <strong style="color: #ffffff;"><span class="mx-2">•</span></strong>
+                                    <strong style="color: #ffffff;"><i class="fas fa-gamepad me-2"></i></strong>
+                                    <strong style="color: #ffffff">${review.platform}</strong>
+                                    ${review.hoursPlayed > 0 ? `<strong style="color: #ffffff;"><span class="mx-2">•</span></strong><strong style="color: #ffffff;"><i class="far fa-clock me-2"></i></strong><strong style="color: #ffffff;"><span>${review.hoursPlayed}h jugadas </span></strong>` : ''}
                                 </div>
                             </div>
                             

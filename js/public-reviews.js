@@ -62,7 +62,7 @@ async function loadPublicReviews() {
             <div class="col-12 text-center my-5">
                 <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
                 <h4 class="text-danger">Error al cargar reseñas</h4>
-                <p class="text-muted">${error.message}</p>
+                <p class="text-light">${error.message}</p>
             </div>
         `;
     }
@@ -86,8 +86,8 @@ function renderPublicReviews(reviews) {
         container.innerHTML = `
             <div class="text-center my-5">
                 <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay reseñas disponibles</h4>
-                <p class="text-muted">Sé el primero en compartir tu opinión sobre un juego.</p>
+                <h4 class="text-light">No hay reseñas disponibles</h4>
+                <p class="text-light">Sé el primero en compartir tu opinión sobre un juego.</p>
             </div>
         `;
         return;
@@ -110,10 +110,10 @@ function renderPublicReviews(reviews) {
                     <!-- Portada del juego -->
                     <div class="col-md-3 col-lg-2 text-center mb-3 mb-md-0">
                         <img src="${coverImage}" 
-                             class="img-fluid rounded shadow-lg" 
-                             alt="${review.gameName}"
-                             style="max-height: 250px; object-fit: contain; background: #1a1a1a; border: 2px solid #00d4ff;"
-                             onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300/1a1a2e/00d4ff?text=Sin+Portada';">
+                            class="img-fluid rounded shadow-lg" 
+                            alt="${review.gameName}"
+                            style="max-height: 250px; object-fit: contain; background: #1a1a1a; border: 2px solid #00d4ff;"
+                            onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300/1a1a2e/00d4ff?text=Sin+Portada';">
                         
                         <!-- Calificación -->
                         <div class="mt-3">
@@ -122,7 +122,7 @@ function renderPublicReviews(reviews) {
                                     ? `<span style="color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">${stars}</span>` 
                                     : '<span style="color: #555;">☆☆☆☆☆</span>'}
                             </div>
-                            ${rating > 0 ? `<small class="text-muted">${rating}/5</small>` : ''}
+                            ${rating > 0 ? `<small class="text-light">${rating}/5</small>` : ''}
                         </div>
 
                         <!-- Estado -->
@@ -135,7 +135,7 @@ function renderPublicReviews(reviews) {
                         <!-- Horas jugadas -->
                         ${review.hoursPlayed > 0 ? `
                             <div class="mt-2">
-                                <small class="text-muted">
+                                <small class="text-light">
                                     <i class="far fa-clock me-1"></i>${review.hoursPlayed}h jugadas
                                 </small>
                             </div>
@@ -150,14 +150,14 @@ function renderPublicReviews(reviews) {
                                     ${review.gameName}
                                 </h4>
                                 <div class="text-muted small">
-                                    <i class="fas fa-user-circle me-2"></i>
+                                    <strong style="color: #ffffff;"><i class="fas fa-user-circle me-2" ></i></strong>
                                     <strong style="color: #ffffff;">Por ${review.username || 'Anónimo'}</strong>
-                                    <span class="mx-2">•</span>
-                                    <i class="far fa-calendar-alt me-2"></i>
-                                    ${reviewDate}
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-gamepad me-2"></i>
-                                    ${review.platform}
+                                    <strong style="color: #ffffff;"><span class="mx-2">•</span> </strong>
+                                    <strong style="color: #ffffff;"><i class="far fa-calendar-alt me-2"></i></strong>
+                                    <strong style="color: #ffffff;">${reviewDate}</strong>
+                                    <strong style="color: #ffffff;"><span class="mx-2">•</span></strong>
+                                    <strong style="color: #ffffff;"><i class="fas fa-gamepad me-2"></i></strong>
+                                    <strong style="color: #ffffff;">${review.platform} </strong>
                                 </div>
                             </div>
                         </div>
