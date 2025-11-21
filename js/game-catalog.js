@@ -1,23 +1,14 @@
-// js/games-catalog.js - VERSIÓN CORREGIDA
+// js/game-catalog.js - ERROR CORREGIDO
 
 const API_URL = 'http://localhost:5000/api';
 let allCatalogGames = [];
-
-// ========================================
-// INICIALIZACIÓN
-// ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
     loadPopularGames();
     setupCatalogEventListeners();
 });
 
-// ========================================
-// EVENT LISTENERS
-// ========================================
-
 function setupCatalogEventListeners() {
-    // Búsqueda
     const searchInput = document.getElementById('catalogSearchInput');
     let searchTimeout;
     
@@ -35,7 +26,6 @@ function setupCatalogEventListeners() {
         });
     }
     
-    // Filtros
     const genreFilter = document.getElementById('genreFilter');
     const platformFilter = document.getElementById('platformCatalogFilter');
     const sortFilter = document.getElementById('sortCatalogBy');
@@ -44,10 +34,6 @@ function setupCatalogEventListeners() {
     if (platformFilter) platformFilter.addEventListener('change', applyFilters);
     if (sortFilter) sortFilter.addEventListener('change', applyFilters);
 }
-
-// ========================================
-// CARGAR JUEGOS
-// ========================================
 
 async function loadPopularGames() {
     const grid = document.getElementById('catalogGamesGrid');
@@ -65,7 +51,6 @@ async function loadPopularGames() {
         allCatalogGames = data.games || [];
         
         console.log('✅ Juegos cargados:', allCatalogGames.length);
-        console.log('📊 Ejemplo de juego:', allCatalogGames[0]);
         
         renderCatalogGames(allCatalogGames);
     } catch (error) {
@@ -88,8 +73,6 @@ async function searchCatalogGames(query) {
         const data = await response.json();
         allCatalogGames = data.games || [];
         
-        console.log('🔍 Resultados de búsqueda:', allCatalogGames.length);
-        
         if (allCatalogGames.length === 0) {
             grid.innerHTML = '<div class="col-12 text-center"><h4 class="text-muted">No se encontraron juegos</h4></div>';
             return;
@@ -102,73 +85,47 @@ async function searchCatalogGames(query) {
     }
 }
 
-// ========================================
-// FILTROS MEJORADOS
-// ========================================
-
 function applyFilters() {
     let filtered = [...allCatalogGames];
     
-    console.log('🔧 Aplicando filtros...');
-    console.log('📦 Total de juegos:', filtered.length);
-    
-    // Filtrar por género (más flexible)
     const genre = document.getElementById('genreFilter').value;
     if (genre !== 'all') {
-        const beforeFilter = filtered.length;
         filtered = filtered.filter(g => {
             if (!g.genres || g.genres.length === 0) return false;
-            
-            // Buscar el género de forma más flexible
             return g.genres.some(gen => 
                 gen.toLowerCase().includes(genre.toLowerCase()) ||
                 genre.toLowerCase().includes(gen.toLowerCase())
             );
         });
-        console.log(`🎭 Filtro género "${genre}": ${beforeFilter} → ${filtered.length}`);
     }
     
-    // Filtrar por plataforma (más flexible)
     const platform = document.getElementById('platformCatalogFilter').value;
     if (platform !== 'all') {
-        const beforeFilter = filtered.length;
         filtered = filtered.filter(g => {
             if (!g.platforms || g.platforms.length === 0) return false;
-            
-            // Buscar la plataforma de forma más flexible
             return g.platforms.some(p => 
                 p.toLowerCase().includes(platform.toLowerCase()) ||
                 platform.toLowerCase().includes(p.toLowerCase())
             );
         });
-        console.log(`🎮 Filtro plataforma "${platform}": ${beforeFilter} → ${filtered.length}`);
     }
     
-    // Ordenar
     const sort = document.getElementById('sortCatalogBy').value;
     switch(sort) {
         case 'name':
             filtered.sort((a, b) => a.name.localeCompare(b.name));
-            console.log('📝 Ordenado por nombre (A-Z)');
             break;
         case 'recent':
             filtered.sort((a, b) => (b.releaseDate || 0) - (a.releaseDate || 0));
-            console.log('📅 Ordenado por fecha (más recientes)');
             break;
         case 'rating':
         default:
             filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-            console.log('⭐ Ordenado por calificación (mejor valorados)');
             break;
     }
     
-    console.log('✅ Juegos después de filtros:', filtered.length);
     renderCatalogGames(filtered);
 }
-
-// ========================================
-// RENDERIZAR
-// ========================================
 
 function renderCatalogGames(games) {
     const grid = document.getElementById('catalogGamesGrid');
@@ -178,7 +135,6 @@ function renderCatalogGames(games) {
             <div class="col-12 text-center my-5">
                 <i class="fas fa-filter fa-3x text-muted mb-3"></i>
                 <h4 class="text-muted">No hay juegos con estos filtros</h4>
-                <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
                 <button class="btn btn-secondary mt-3" onclick="resetFilters()">
                     <i class="fas fa-undo me-2"></i>Limpiar Filtros
                 </button>
@@ -217,20 +173,12 @@ function renderCatalogGames(games) {
     }).join('');
 }
 
-// ========================================
-// FUNCIÓN PARA RESETEAR FILTROS
-// ========================================
-
 function resetFilters() {
     document.getElementById('genreFilter').value = 'all';
     document.getElementById('platformCatalogFilter').value = 'all';
     document.getElementById('sortCatalogBy').value = 'rating';
     loadPopularGames();
 }
-
-// ========================================
-// MODAL DETALLES
-// ========================================
 
 async function openGameDetailsModal(gameId) {
     const game = allCatalogGames.find(g => g.id === gameId);
@@ -239,6 +187,19 @@ async function openGameDetailsModal(gameId) {
     const coverImage = getValidCoverUrl(game.cover);
     const rating = game.rating ? Math.round(game.rating) : 0;
     const stars = rating > 0 ? '⭐'.repeat(Math.min(5, Math.ceil(rating / 20))) : '';
+    
+    // ✅ FIX: Escapar comillas en el summary
+    const safeSummary = (game.summary || 'No hay sinopsis disponible.')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    
+    let platformsHTML = '<span class="text-muted">N/A</span>';
+    if (game.platforms && Array.isArray(game.platforms) && game.platforms.length > 0) {
+        platformsHTML = game.platforms
+            .slice(0, 8)
+            .map(p => `<span class="badge bg-secondary">${p}</span>`)
+            .join(' ');
+    }
     
     const modalHTML = `
         <div class="modal fade" id="gameDetailsModal" tabindex="-1">
@@ -277,7 +238,7 @@ async function openGameDetailsModal(gameId) {
                                 
                                 <h6 class="text-neon mb-2 mt-3">Plataformas</h6>
                                 <div class="d-flex flex-wrap gap-2">
-                                    ${game.platforms?.slice(0, 8).map(p => `<span class="badge bg-secondary">${p}</span>`).join('') || '<span class="text-muted">N/A</span>'}
+                                    ${platformsHTML}
                                 </div>
                             </div>
                         </div>
@@ -298,10 +259,6 @@ async function openGameDetailsModal(gameId) {
         this.remove();
     });
 }
-
-// ========================================
-// MODAL AGREGAR (igual que antes)
-// ========================================
 
 function openAddToCatalogModal(igdbId, gameName, coverUrl) {
     const token = localStorage.getItem('authToken');
@@ -473,10 +430,6 @@ async function confirmAddToCatalog(igdbId, gameName, coverUrl) {
         alert('Error de conexión');
     }
 }
-
-// ========================================
-// UTILIDADES
-// ========================================
 
 function getValidCoverUrl(coverUrl) {
     if (!coverUrl || coverUrl === 'null' || coverUrl === 'undefined') {

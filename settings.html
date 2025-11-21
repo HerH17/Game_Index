@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | Game Index</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/7480a3a4ad.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html"><img src="img/logo.jpeg" alt="Logo"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+                    <li class="nav-item"><a href="games.html" class="nav-link">Juegos</a></li>
+                    <li class="nav-item"><a href="reviews-public.html" class="nav-link">Reseñas</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <div id="authContainer" class="auth-position-container">
+                            <div id="loggedInGroup" class="d-flex align-items-center hidden">
+                                <a href="dashboard.html" class="btn btn-neon btn-sm px-3 py-1 fw-bold text-uppercase d-flex align-items-center justify-content-center me-3">
+                                    <i class="fa-solid fa-user me-1"></i> 
+                                    <span id="usernameDisplay">MI PERFIL</span>
+                                </a>
+                                <a href="#" id="logoutButtonStatic" class="nav-link text-danger p-0" onclick="handleLogout(event)">
+                                    Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="container-fluid container-dashboard">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky">
+                    <h5 class="text-uppercase text-neon my-4 ps-3">Mi Actividad</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="fas fa-chart-line me-2"></i> Vista General
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="library.html">
+                                <i class="fas fa-book-open me-2"></i> Mi Biblioteca
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="reviews.html">
+                                <i class="fas fa-star me-2"></i> Mis Reseñas
+                            </a>
+                        </li>
+                    </ul>
+
+                    <h5 class="text-uppercase text-neon my-4 ps-3">Cuenta</h5>
+                    <ul class="nav flex-column mb-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="settings.html">
+                                <i class="fas fa-cog me-2"></i> Configuración
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Contenido Principal -->
+            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <h1 class="mt-4 mb-4">
+                    <i class="fas fa-cog me-3"></i>Configuración de Cuenta
+                </h1>
+
+                <!-- Información Personal -->
+                <div class="card bg-dark text-white mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Información Personal</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="personalInfoForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre de Usuario</label>
+                                    <input type="text" class="form-control custom-input" id="settingsUsername" readonly>
+                                    <small class="text-muted">El nombre de usuario no se puede cambiar</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Correo Electrónico</label>
+                                    <input type="email" class="form-control custom-input" id="settingsEmail">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Fecha de Nacimiento</label>
+                                    <input type="date" class="form-control custom-input" id="settingsDOB">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Edad</label>
+                                    <input type="number" class="form-control custom-input" id="settingsAge" readonly>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-neon">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Cambiar Contraseña -->
+                <div class="card bg-dark text-white mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Cambiar Contraseña</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="passwordForm">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Contraseña Actual</label>
+                                    <input type="password" class="form-control custom-input" id="currentPassword" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Nueva Contraseña</label>
+                                    <input type="password" class="form-control custom-input" id="newPassword" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Confirmar Contraseña</label>
+                                    <input type="password" class="form-control custom-input" id="confirmPassword" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-neon">
+                                <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Preferencias -->
+                <div class="card bg-dark text-white mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Preferencias</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Plataforma Favorita</label>
+                                <select class="form-select custom-input" id="favoritePlatform">
+                                    <option value="">Sin preferencia</option>
+                                    <option value="PC">PC</option>
+                                    <option value="PlayStation 5">PlayStation 5</option>
+                                    <option value="PlayStation 4">PlayStation 4</option>
+                                    <option value="Xbox Series X/S">Xbox Series X/S</option>
+                                    <option value="Xbox One">Xbox One</option>
+                                    <option value="Nintendo Switch">Nintendo Switch</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Género Favorito</label>
+                                <select class="form-select custom-input" id="favoriteGenre">
+                                    <option value="">Sin preferencia</option>
+                                    <option value="Action">Acción</option>
+                                    <option value="Adventure">Aventura</option>
+                                    <option value="RPG">RPG</option>
+                                    <option value="Strategy">Estrategia</option>
+                                    <option value="Shooter">Shooter</option>
+                                    <option value="Indie">Indie</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="publicProfile" checked>
+                            <label class="form-check-label" for="publicProfile">
+                                Perfil público (permite que otros vean tus reseñas)
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                            <label class="form-check-label" for="emailNotifications">
+                                Recibir notificaciones por correo
+                            </label>
+                        </div>
+                        <button class="btn btn-neon" onclick="savePreferences()">
+                            <i class="fas fa-save me-2"></i>Guardar Preferencias
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estadísticas de Cuenta -->
+                <div class="card bg-dark text-white mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Estadísticas de Cuenta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(15, 52, 96, 0.4);">
+                                    <h3 class="text-light mb-0" id="totalGames">0</h3>
+                                    <small class="text-light">Juegos en Biblioteca</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(15, 52, 96, 0.4);">
+                                    <h3 class="text-light mb-0" id="totalReviews">0</h3>
+                                    <small class="text-light">Reseñas Escritas</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(15, 52, 96, 0.4);">
+                                    <h3 class="text-light mb-0" id="totalHours">0h</h3>
+                                    <small class="text-light">Horas Totales</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(15, 52, 96, 0.4);">
+                                    <h3 class="text-neon mb-0" id="memberSince">2025</h3>
+                                    <small class="text-light">Miembro Desde</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zona de Peligro -->
+                <div class="card bg-dark text-white border-danger mb-4">
+                    <div class="card-header bg-danger">
+                        <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Zona de Peligro</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-light">Estas acciones son permanentes y no se pueden deshacer.</p>
+                        <button class="btn btn-outline-danger" onclick="confirmDeleteAccount()">
+                            <i class="fas fa-trash me-2"></i>Eliminar Cuenta
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 col-lg-3 mb-2">
+                    <h6>Social</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fa-brands fa-discord me-2 text-white"></i><a href="#">Discord</a></li>
+                        <li><i class="fa-brands fa-facebook me-2 text-white"></i><a href="#">Facebook</a></li>
+                        <li><i class="fa-brands fa-x-twitter me-2 text-white"></i><a href="#">X (Twitter)</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-3 mb-2">
+                    <h6>Information</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><a href="#">AdChoice</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-lg-6 mt-3 mt-lg-0">
+                    <h6>GameIndex</h6>
+                    <p class="copyright-text">© 2025 GameIndex. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

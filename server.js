@@ -1,4 +1,4 @@
-// server.js
+// server.js - CON RUTAS DE CONFIGURACIÓN
 
 require('dotenv').config(); 
 const express = require('express');
@@ -7,21 +7,13 @@ const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
-// Importación del middleware de autenticación
 const authenticateToken = require('./middleware/auth');
-const libraryRoutes = require('./routes/library');
-const gamesRoutes = require('./routes/games'); // ✅ AGREGADO
-
-// Importación de modelos
+const gamesRoutes = require('./routes/games');
 const User = require('./models/User');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'TU_CLAVE_SECRETA_SUPER_SEGURA';
-
-// -----------------------------------------------------
-// MIDDLEWARES GLOBALES
-// -----------------------------------------------------
 
 app.use(cors({
     origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'null'], 
@@ -29,40 +21,149 @@ app.use(cors({
     credentials: true
 }));
 
-// Middleware para procesar JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Middleware para servir archivos estáticos
 app.use(express.static(path.join(__dirname)));
 
-// -----------------------------------------------------
-// MONTAR RUTAS DE API
-// -----------------------------------------------------
-
-// ✅ Montar rutas de juegos (IGDB + Biblioteca)
+// Rutas de juegos
 app.use('/api/games', gamesRoutes);
 
-// ❌ COMENTADO: Ya no usamos esta ruta porque /api/games/library maneja todo
-// app.use('/api/library', libraryRoutes);
+// ========================================
+// RUTAS DE USUARIO (CONFIGURACIÓN)
+// ========================================
 
-// -----------------------------------------------------
-// RUTAS DE AUTENTICACIÓN (LOGIN Y REGISTRO)
-// -----------------------------------------------------
+// Obtener perfil del usuario
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
 
-// RUTA DE REGISTRO
+        res.json(user);
+    } catch (error) {
+        console.error('Error obteniendo perfil:', error);
+        res.status(500).json({ message: 'Error al obtener perfil' });
+    }
+});
+
+// Actualizar información personal
+app.put('/api/user/profile', authenticateToken, async (req, res) => {
+    try {
+        const { email, dob, age } = req.body;
+        
+        const user = await User.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        if (email) user.email = email;
+        if (dob) user.dob = new Date(dob);
+        if (age) user.age = age;
+
+        await user.save();
+
+        res.json({ message: 'Perfil actualizado correctamente', user });
+    } catch (error) {
+        console.error('Error actualizando perfil:', error);
+        res.status(500).json({ message: 'Error al actualizar perfil' });
+    }
+});
+
+// Cambiar contraseña
+app.put('/api/user/change-password', authenticateToken, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Faltan datos' });
+        }
+
+        const user = await User.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Verificar contraseña actual
+        const isValid = await user.comparePassword(currentPassword);
+        
+        if (!isValid) {
+            return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+        }
+
+        // Actualizar contraseña
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ message: 'Contraseña actualizada correctamente' });
+    } catch (error) {
+        console.error('Error cambiando contraseña:', error);
+        res.status(500).json({ message: 'Error al cambiar contraseña' });
+    }
+});
+
+// Guardar preferencias
+app.put('/api/user/preferences', authenticateToken, async (req, res) => {
+    try {
+        const { favoritePlatform, favoriteGenre, publicProfile, emailNotifications } = req.body;
+        
+        const user = await User.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        user.preferences = {
+            favoritePlatform,
+            favoriteGenre,
+            publicProfile,
+            emailNotifications
+        };
+
+        await user.save();
+
+        res.json({ message: 'Preferencias guardadas correctamente' });
+    } catch (error) {
+        console.error('Error guardando preferencias:', error);
+        res.status(500).json({ message: 'Error al guardar preferencias' });
+    }
+});
+
+// Eliminar cuenta
+app.delete('/api/user/delete', authenticateToken, async (req, res) => {
+    try {
+        const TrackerEntry = require('./models/trackerEntry');
+        
+        // Eliminar todas las entradas del usuario
+        await TrackerEntry.deleteMany({ userId: req.user.id });
+        
+        // Eliminar usuario
+        await User.findByIdAndDelete(req.user.id);
+
+        res.json({ message: 'Cuenta eliminada correctamente' });
+    } catch (error) {
+        console.error('Error eliminando cuenta:', error);
+        res.status(500).json({ message: 'Error al eliminar cuenta' });
+    }
+});
+
+// ========================================
+// AUTENTICACIÓN
+// ========================================
+
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password, dob, age } = req.body;
 
-        // Validaciones básicas
         if (!username || !email || !password || !dob || !age) {
             return res.status(400).json({ 
                 message: 'Todos los campos son obligatorios.' 
             });
         }
 
-        // Verificar si el usuario ya existe
         const existingUser = await User.findOne({ 
             $or: [{ username }, { email }] 
         });
@@ -73,13 +174,16 @@ app.post('/register', async (req, res) => {
             });
         }
 
-        // Crear nuevo usuario
         const newUser = new User({
             username,
             email,
             password,
             dob: new Date(dob),
-            age: parseInt(age)
+            age: parseInt(age),
+            preferences: {
+                publicProfile: true,
+                emailNotifications: true
+            }
         });
 
         await newUser.save();
@@ -97,19 +201,16 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// RUTA DE LOGIN
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Validaciones básicas
         if (!username || !password) {
             return res.status(400).json({ 
                 message: 'Usuario y contraseña son obligatorios.' 
             });
         }
 
-        // Buscar usuario en la base de datos
         const user = await User.findOne({ username });
 
         if (!user) {
@@ -118,7 +219,6 @@ app.post('/login', async (req, res) => {
             });
         }
 
-        // Verificar contraseña
         const isPasswordValid = await user.comparePassword(password);
 
         if (!isPasswordValid) {
@@ -127,7 +227,6 @@ app.post('/login', async (req, res) => {
             });
         }
 
-        // Generar token JWT
         const token = jwt.sign(
             { id: user._id, username: user.username },
             JWT_SECRET,
@@ -148,9 +247,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// -----------------------------------------------------
+// ========================================
 // INICIO DEL SERVIDOR
-// -----------------------------------------------------
+// ========================================
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/gameindex')
     .then(() => {
