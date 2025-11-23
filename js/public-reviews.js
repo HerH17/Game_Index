@@ -1,22 +1,14 @@
-// js/public-reviews.js - Reseñas públicas de la comunidad
+// js/public-reviews.js - CON COMENTARIOS
 
 const API_URL = 'http://localhost:5000/api';
 let allPublicReviews = [];
 let searchTimeout;
-
-// ========================================
-// INICIALIZACIÓN
-// ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
     loadPublicReviews();
     setupPublicReviewsFilters();
     updateAuthButton();
 });
-
-// ========================================
-// ACTUALIZAR BOTÓN DE AUTENTICACIÓN
-// ========================================
 
 function updateAuthButton() {
     const token = localStorage.getItem('authToken');
@@ -32,15 +24,10 @@ function updateAuthButton() {
     }
 }
 
-// ========================================
-// CARGAR TODAS LAS RESEÑAS PÚBLICAS
-// ========================================
-
 async function loadPublicReviews() {
     const container = document.getElementById('publicReviewsContainer');
     
     try {
-        // Obtener TODAS las entradas de TODOS los usuarios (sin token)
         const response = await fetch(`${API_URL}/games/reviews/public`);
         
         if (!response.ok) {
@@ -48,8 +35,6 @@ async function loadPublicReviews() {
         }
 
         const data = await response.json();
-        
-        // Filtrar solo las que tienen reseñas
         allPublicReviews = data.reviews.filter(review => review.notes && review.notes.trim() !== '');
         
         console.log(`✅ ${allPublicReviews.length} reseñas públicas cargadas`);
@@ -68,11 +53,7 @@ async function loadPublicReviews() {
     }
 }
 
-// ========================================
-// RENDERIZAR RESEÑAS PÚBLICAS
-// ========================================
-
-function renderPublicReviews(reviews) {
+async function renderPublicReviews(reviews) {
     const container = document.getElementById('publicReviewsContainer');
     const countEl = document.getElementById('reviewsCount');
     
@@ -93,7 +74,7 @@ function renderPublicReviews(reviews) {
         return;
     }
 
-    container.innerHTML = reviews.map(review => {
+    const reviewsHTML = await Promise.all(reviews.map(async review => {
         const coverImage = getValidCoverUrl(review.coverUrl);
         const rating = review.userRating ? Math.ceil(review.userRating / 2) : 0;
         const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
@@ -103,11 +84,16 @@ function renderPublicReviews(reviews) {
             year: 'numeric'
         });
 
+        // Obtener comentarios
+        const commentsResponse = await fetch(`${API_URL}/comments/${review._id}`);
+        const commentsData = await commentsResponse.json();
+        const comments = commentsData.comments || [];
+        const commentCount = comments.length;
+
         return `
         <div class="card mb-4 shadow-sm" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #0f3460;">
             <div class="card-body p-4">
                 <div class="row">
-                    <!-- Portada del juego -->
                     <div class="col-md-3 col-lg-2 text-center mb-3 mb-md-0">
                         <img src="${coverImage}" 
                             class="img-fluid rounded shadow-lg" 
@@ -115,7 +101,6 @@ function renderPublicReviews(reviews) {
                             style="max-height: 250px; object-fit: contain; background: #1a1a1a; border: 2px solid #00d4ff;"
                             onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300/1a1a2e/00d4ff?text=Sin+Portada';">
                         
-                        <!-- Calificación -->
                         <div class="mt-3">
                             <div style="font-size: 1.5rem; letter-spacing: 2px;">
                                 ${rating > 0 
@@ -125,14 +110,12 @@ function renderPublicReviews(reviews) {
                             ${rating > 0 ? `<small class="text-light">${rating}/5</small>` : ''}
                         </div>
 
-                        <!-- Estado -->
                         <div class="mt-2">
                             <span class="badge ${getStatusBadgeClass(review.status)} w-100 py-1">
                                 ${review.status}
                             </span>
                         </div>
 
-                        <!-- Horas jugadas -->
                         ${review.hoursPlayed > 0 ? `
                             <div class="mt-2">
                                 <small class="text-light">
@@ -142,7 +125,6 @@ function renderPublicReviews(reviews) {
                         ` : ''}
                     </div>
                     
-                    <!-- Contenido de la reseña -->
                     <div class="col-md-9 col-lg-10">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
@@ -150,24 +132,23 @@ function renderPublicReviews(reviews) {
                                     ${review.gameName}
                                 </h4>
                                 <div class="text-muted small">
-                                    <strong style="color: #ffffff;"><i class="fas fa-user-circle me-2" ></i></strong>
+                                    <strong style="color: #ffffff;"><i class="fas fa-user-circle me-2"></i></strong>
                                     <strong style="color: #ffffff;">Por ${review.username || 'Anónimo'}</strong>
-                                    <strong style="color: #ffffff;"><span class="mx-2">•</span> </strong>
+                                    <strong style="color: #ffffff;"><span class="mx-2">•</span></strong>
                                     <strong style="color: #ffffff;"><i class="far fa-calendar-alt me-2"></i></strong>
                                     <strong style="color: #ffffff;">${reviewDate}</strong>
                                     <strong style="color: #ffffff;"><span class="mx-2">•</span></strong>
                                     <strong style="color: #ffffff;"><i class="fas fa-gamepad me-2"></i></strong>
-                                    <strong style="color: #ffffff;">${review.platform} </strong>
+                                    <strong style="color: #ffffff;">${review.platform}</strong>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="review-content p-3 rounded" style="background: rgba(15, 52, 96, 0.3); border-left: 4px solid #00d4ff;">
+                        <div class="review-content p-3 rounded mb-3" style="background: rgba(15, 52, 96, 0.3); border-left: 4px solid #00d4ff;">
                             <p class="mb-0" style="color: #e0e0e0; line-height: 1.8; white-space: pre-wrap;">${review.notes}</p>
                         </div>
                         
-                        <!-- Etiquetas adicionales -->
-                        <div class="mt-3">
+                        <div class="mt-3 mb-3">
                             ${review.status === 'Completado' 
                                 ? '<span class="badge bg-success me-2"><i class="fas fa-trophy me-1"></i>Completado</span>' 
                                 : ''}
@@ -178,17 +159,208 @@ function renderPublicReviews(reviews) {
                                 ? '<span class="badge bg-info me-2"><i class="fas fa-clock me-1"></i>+50 Horas</span>' 
                                 : ''}
                         </div>
+
+                        <!-- Sección de Comentarios -->
+                        <div class="comments-section mt-4 p-3 rounded" style="background: rgba(15, 52, 96, 0.2); border: 1px solid #0f3460;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0" style="color: #00d4ff;">
+                                    <i class="fas fa-comments me-2"></i>Comentarios (${commentCount})
+                                </h6>
+                                <button class="btn btn-sm btn-outline-primary" onclick="toggleComments('${review._id}')">
+                                    <i class="fas fa-chevron-down" id="icon-${review._id}"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="comments-${review._id}" class="comments-container" style="display: none;">
+                                ${await renderComments(review._id)}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         `;
-    }).join('');
+    }));
+
+    container.innerHTML = reviewsHTML.join('');
 }
 
-// ========================================
-// FILTROS Y BÚSQUEDA
-// ========================================
+async function renderComments(reviewId) {
+    const token = localStorage.getItem('authToken');
+    const username = localStorage.getItem('username');
+    
+    try {
+        const response = await fetch(`${API_URL}/comments/${reviewId}`);
+        const data = await response.json();
+        const comments = data.comments || [];
+        
+        let html = '';
+        
+        // Formulario para agregar comentario (solo si está logueado)
+        if (token && username) {
+            html += `
+                <div class="add-comment mb-3 p-3 rounded" style="background: rgba(15, 52, 96, 0.3);">
+                    <textarea class="form-control custom-input mb-2" 
+                              id="comment-input-${reviewId}" 
+                              rows="2" 
+                              placeholder="Escribe un comentario..."
+                              maxlength="500"></textarea>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="char-count-${reviewId}">0/500</small>
+                        <button class="btn btn-sm btn-neon" onclick="postComment('${reviewId}')">
+                            <i class="fas fa-paper-plane me-1"></i>Comentar
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" style="color: #00d4ff;">Inicia sesión</a> 
+                    para dejar un comentario
+                </div>
+            `;
+        }
+        
+        // Lista de comentarios
+        if (comments.length > 0) {
+            html += '<div class="comments-list">';
+            comments.forEach(comment => {
+                const commentDate = new Date(comment.createdAt).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const isOwner = username === comment.username;
+                
+                html += `
+                    <div class="comment-item p-2 mb-2 rounded" style="background: rgba(255, 255, 255, 0.05);">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fas fa-user-circle me-2" style="color: #00d4ff;"></i>
+                                    <strong style="color: #ffffff;">${comment.username}</strong>
+                                    <small class="text-muted ms-2">${commentDate}</small>
+                                </div>
+                                <p class="mb-0 ms-4" style="color: #e0e0e0;">${comment.content}</p>
+                            </div>
+                            ${isOwner ? `
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteComment('${comment._id}', '${reviewId}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        } else {
+            html += '<p class="text-muted text-center mb-0">No hay comentarios aún. ¡Sé el primero en comentar!</p>';
+        }
+        
+        return html;
+        
+    } catch (error) {
+        console.error('Error cargando comentarios:', error);
+        return '<p class="text-danger">Error al cargar comentarios</p>';
+    }
+}
+
+function toggleComments(reviewId) {
+    const container = document.getElementById(`comments-${reviewId}`);
+    const icon = document.getElementById(`icon-${reviewId}`);
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        container.style.display = 'none';
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
+}
+
+async function postComment(reviewId) {
+    const token = localStorage.getItem('authToken');
+    const input = document.getElementById(`comment-input-${reviewId}`);
+    const content = input.value.trim();
+    
+    if (!token) {
+        alert('Debes iniciar sesión para comentar');
+        return;
+    }
+    
+    if (!content) {
+        alert('El comentario no puede estar vacío');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ reviewId, content })
+        });
+        
+        if (response.ok) {
+            input.value = '';
+            // Recargar comentarios
+            const commentsContainer = document.getElementById(`comments-${reviewId}`);
+            commentsContainer.innerHTML = await renderComments(reviewId);
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Error al publicar comentario');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    }
+}
+
+async function deleteComment(commentId, reviewId) {
+    if (!confirm('¿Eliminar este comentario?')) return;
+    
+    const token = localStorage.getItem('authToken');
+    
+    try {
+        const response = await fetch(`${API_URL}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            // Recargar comentarios
+            const commentsContainer = document.getElementById(`comments-${reviewId}`);
+            commentsContainer.innerHTML = await renderComments(reviewId);
+        } else {
+            alert('Error al eliminar comentario');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    }
+}
+
+// Contador de caracteres
+document.addEventListener('input', (e) => {
+    if (e.target.id && e.target.id.startsWith('comment-input-')) {
+        const reviewId = e.target.id.replace('comment-input-', '');
+        const counter = document.getElementById(`char-count-${reviewId}`);
+        if (counter) {
+            counter.textContent = `${e.target.value.length}/500`;
+        }
+    }
+});
 
 function setupPublicReviewsFilters() {
     const reviewFilter = document.getElementById('reviewFilter');
@@ -214,7 +386,6 @@ function setupPublicReviewsFilters() {
 function applyPublicFilters() {
     let filtered = [...allPublicReviews];
     
-    // Filtro por tipo
     const reviewFilter = document.getElementById('reviewFilter').value;
     switch(reviewFilter) {
         case 'recent':
@@ -225,18 +396,15 @@ function applyPublicFilters() {
             filtered.sort((a, b) => (b.userRating || 0) - (a.userRating || 0));
             break;
         case 'popular':
-            // Simular popularidad por horas jugadas
             filtered.sort((a, b) => (b.hoursPlayed || 0) - (a.hoursPlayed || 0));
             break;
     }
     
-    // Filtro por estado
     const statusFilter = document.getElementById('statusFilter').value;
     if (statusFilter !== 'all') {
         filtered = filtered.filter(r => r.status === statusFilter);
     }
     
-    // Búsqueda por nombre
     const searchQuery = document.getElementById('searchReviewGame').value.toLowerCase().trim();
     if (searchQuery) {
         filtered = filtered.filter(r => r.gameName.toLowerCase().includes(searchQuery));
@@ -244,10 +412,6 @@ function applyPublicFilters() {
     
     renderPublicReviews(filtered);
 }
-
-// ========================================
-// UTILIDADES
-// ========================================
 
 function getValidCoverUrl(coverUrl) {
     if (!coverUrl || coverUrl === 'null' || coverUrl === 'undefined') {

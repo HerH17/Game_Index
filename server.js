@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const authenticateToken = require('./middleware/auth');
 const gamesRoutes = require('./routes/games');
+const commentsRoutes = require('./routes/comments');
 const User = require('./models/User');
 
 const app = express();
@@ -27,6 +28,9 @@ app.use(express.static(path.join(__dirname)));
 
 // Rutas de juegos
 app.use('/api/games', gamesRoutes);
+
+// Rutas de comentarios
+app.use('/api/comments', commentsRoutes);
 
 // ========================================
 // RUTAS DE USUARIO (CONFIGURACIÓN)

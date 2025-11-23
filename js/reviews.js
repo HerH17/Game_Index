@@ -1,11 +1,7 @@
-// js/reviews.js
+// js/reviews.js - CON NOTIFICACIONES DE COMENTARIOS
 
 const API_URL = 'http://localhost:5000/api';
 let allReviews = [];
-
-// ========================================
-// INICIALIZACIÓN
-// ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('authToken');
@@ -18,10 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserReviews();
     setupSortListener();
 });
-
-// ========================================
-// CARGAR RESEÑAS
-// ========================================
 
 async function loadUserReviews() {
     const token = localStorage.getItem('authToken');
@@ -53,11 +45,7 @@ async function loadUserReviews() {
     }
 }
 
-// ========================================
-// RENDERIZAR RESEÑAS
-// ========================================
-
-function renderReviews(reviews, username) {
+async function renderReviews(reviews, username) {
     const container = document.getElementById('reviewsContainer');
     const countEl = document.getElementById('reviewCount');
     
@@ -81,7 +69,7 @@ function renderReviews(reviews, username) {
         return;
     }
 
-    container.innerHTML = reviews.map(review => {
+    const reviewsHTML = await Promise.all(reviews.map(async review => {
         const coverImage = getValidCoverUrl(review.coverUrl);
         const rating = review.userRating ? Math.ceil(review.userRating / 2) : 0;
         const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
@@ -91,11 +79,22 @@ function renderReviews(reviews, username) {
             year: 'numeric'
         });
 
+        // Obtener comentarios y verificar si hay nuevos
+        const commentsResponse = await fetch(`${API_URL}/comments/${review._id}`);
+        const commentsData = await commentsResponse.json();
+        const comments = commentsData.comments || [];
+        const commentCount = comments.length;
+        
+        // Verificar si hay comentarios nuevos (después de la última actualización de la reseña)
+        const hasNewComments = comments.some(c => 
+            new Date(c.createdAt) > new Date(review.updatedAt) && 
+            c.username !== username
+        );
+
         return `
         <div class="card mb-4 shadow-sm" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #0f3460;">
             <div class="card-body p-4">
                 <div class="row">
-                    <!-- Portada del juego -->
                     <div class="col-md-3 col-lg-2 text-center mb-3 mb-md-0">
                         <img src="${coverImage}" 
                              class="img-fluid rounded shadow-lg" 
@@ -103,7 +102,6 @@ function renderReviews(reviews, username) {
                              style="max-height: 250px; object-fit: contain; background: #1a1a1a; border: 2px solid #00d4ff;"
                              onerror="this.onerror=null; this.src='https://via.placeholder.com/200x300/1a1a2e/00d4ff?text=Sin+Portada';">
                         
-                        <!-- Calificación -->
                         <div class="mt-3">
                             <div style="font-size: 1.5rem; letter-spacing: 2px;">
                                 ${rating > 0 
@@ -113,7 +111,6 @@ function renderReviews(reviews, username) {
                             ${rating > 0 ? `<small class="text-light">${rating}/5</small>` : ''}
                         </div>
 
-                        <!-- Estado -->
                         <div class="mt-2">
                             <span class="badge ${getStatusBadgeClass(review.status)} w-100 py-1">
                                 ${review.status}
@@ -121,7 +118,6 @@ function renderReviews(reviews, username) {
                         </div>
                     </div>
                     
-                    <!-- Contenido de la reseña -->
                     <div class="col-md-9 col-lg-10">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
@@ -146,12 +142,11 @@ function renderReviews(reviews, username) {
                             </button>
                         </div>
                         
-                        <div class="review-content p-3 rounded" style="background: rgba(15, 52, 96, 0.3); border-left: 4px solid #00d4ff;">
+                        <div class="review-content p-3 rounded mb-3" style="background: rgba(15, 52, 96, 0.3); border-left: 4px solid #00d4ff;">
                             <p class="mb-0" style="color: #e0e0e0; line-height: 1.8; white-space: pre-wrap;">${review.notes}</p>
                         </div>
                         
-                        <!-- Etiquetas adicionales -->
-                        <div class="mt-3">
+                        <div class="mt-3 mb-3">
                             ${review.status === 'Completado' 
                                 ? '<span class="badge bg-success me-2"><i class="fas fa-trophy me-1"></i>Completado</span>' 
                                 : ''}
@@ -162,17 +157,102 @@ function renderReviews(reviews, username) {
                                 ? '<span class="badge bg-info me-2"><i class="fas fa-clock me-1"></i>+50 Horas</span>' 
                                 : ''}
                         </div>
+
+                        <!-- Sección de Comentarios -->
+                        <div class="comments-section mt-4 p-3 rounded" style="background: rgba(15, 52, 96, 0.2); border: 1px solid #0f3460;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0" style="color: #00d4ff;">
+                                    <i class="fas fa-comments me-2"></i>Comentarios (${commentCount})
+                                    ${hasNewComments ? `
+                                        <span class="badge bg-danger ms-2 pulse-animation">
+                                            <i class="fas fa-exclamation"></i> Nuevo
+                                        </span>
+                                    ` : ''}
+                                </h6>
+                                <button class="btn btn-sm btn-outline-primary" onclick="toggleMyComments('${review._id}')">
+                                    <i class="fas fa-chevron-down" id="icon-${review._id}"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="comments-${review._id}" class="comments-container" style="display: none;">
+                                ${await renderMyReviewComments(review._id, username)}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         `;
-    }).join('');
+    }));
+
+    container.innerHTML = reviewsHTML.join('');
 }
 
-// ========================================
-// UTILIDADES
-// ========================================
+async function renderMyReviewComments(reviewId, myUsername) {
+    try {
+        const response = await fetch(`${API_URL}/comments/${reviewId}`);
+        const data = await response.json();
+        const comments = data.comments || [];
+        
+        if (comments.length === 0) {
+            return '<p class="text-muted text-center mb-0">No hay comentarios en esta reseña</p>';
+        }
+        
+        let html = '<div class="comments-list">';
+        comments.forEach(comment => {
+            const commentDate = new Date(comment.createdAt).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const isOwnComment = myUsername === comment.username;
+            
+            html += `
+                <div class="comment-item p-3 mb-2 rounded ${isOwnComment ? 'border border-primary' : ''}" 
+                     style="background: ${isOwnComment ? 'rgba(0, 212, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'};">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-user-circle me-2" style="color: ${isOwnComment ? '#00d4ff' : '#ffffff'};"></i>
+                                <strong style="color: ${isOwnComment ? '#00d4ff' : '#ffffff'};">
+                                    ${comment.username}
+                                    ${isOwnComment ? '<span class="badge bg-primary ms-2">Tú</span>' : ''}
+                                </strong>
+                                <small class="text-muted ms-2">${commentDate}</small>
+                            </div>
+                            <p class="mb-0 ms-4" style="color: #e0e0e0;">${comment.content}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        return html;
+        
+    } catch (error) {
+        console.error('Error cargando comentarios:', error);
+        return '<p class="text-danger">Error al cargar comentarios</p>';
+    }
+}
+
+function toggleMyComments(reviewId) {
+    const container = document.getElementById(`comments-${reviewId}`);
+    const icon = document.getElementById(`icon-${reviewId}`);
+    
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        container.style.display = 'none';
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
+}
 
 function getValidCoverUrl(coverUrl) {
     if (!coverUrl || coverUrl === 'null' || coverUrl === 'undefined') {
@@ -196,10 +276,6 @@ function getStatusBadgeClass(status) {
     };
     return statusClasses[status] || 'bg-secondary';
 }
-
-// ========================================
-// ORDENAMIENTO
-// ========================================
 
 function setupSortListener() {
     const sortSelect = document.getElementById('sortReviews');
@@ -229,12 +305,7 @@ function setupSortListener() {
     }
 }
 
-// ========================================
-// EDITAR RESEÑA
-// ========================================
-
 function editReview(gameId) {
-    // Redirigir a la biblioteca con el juego específico
     window.location.href = `library.html?edit=${gameId}`;
 }
 

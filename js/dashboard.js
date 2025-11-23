@@ -1,24 +1,16 @@
-// js/dashboard.js
+// js/dashboard.js - CON NOTIFICACIONES DE COMENTARIOS
 
-// -----------------------------------------------------
-// CARGAR DATOS DEL DASHBOARD
-// -----------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     const authToken = localStorage.getItem('authToken');
 
     if (authToken) {
         fetchDashboardData(authToken);
+        checkNewComments(authToken);
     }
-    // Si no hay token, session.js redirigirá al index.html
 });
 
-/**
- * Solicita los datos de la biblioteca y estadísticas al backend.
- * @param {string} token - El JWT del usuario.
- */
 async function fetchDashboardData(token) {
     try {
-        // ✅ CORREGIDO: Usar la ruta correcta de games/library
         const response = await fetch('http://localhost:5000/api/games/library', {
             method: 'GET',
             headers: { 
@@ -33,7 +25,6 @@ async function fetchDashboardData(token) {
 
         const data = await response.json();
 
-        // Renderizar las estadísticas y la actividad
         renderStats(data.stats);
         renderRecentActivity(data.entries);
 
@@ -52,14 +43,88 @@ async function fetchDashboardData(token) {
     }
 }
 
-// -----------------------------------------------------
-// FUNCIONES DE RENDERIZADO
-// -----------------------------------------------------
+async function checkNewComments(token) {
+    try {
+        const username = localStorage.getItem('username');
+        
+        // Obtener biblioteca del usuario
+        const response = await fetch('http://localhost:5000/api/games/library', {
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-/**
- * Renderiza las estadísticas en las tarjetas del dashboard.
- * @param {object} stats - Objeto con { completed, playing, totalHours }.
- */
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const reviewsWithNotes = data.entries.filter(e => e.notes && e.notes.trim() !== '');
+        
+        let totalNewComments = 0;
+        
+        // Verificar comentarios nuevos en cada reseña
+        for (const review of reviewsWithNotes) {
+            const commentsResponse = await fetch(`http://localhost:5000/api/comments/${review._id}`);
+            if (!commentsResponse.ok) continue;
+            
+            const commentsData = await commentsResponse.json();
+            const comments = commentsData.comments || [];
+            
+            // Contar comentarios nuevos (después de la última actualización y que no sean del usuario)
+            const newComments = comments.filter(c => 
+                new Date(c.createdAt) > new Date(review.updatedAt) && 
+                c.username !== username
+            ).length;
+            
+            totalNewComments += newComments;
+        }
+        
+        // Mostrar notificación en el enlace de "Mis Reseñas"
+        if (totalNewComments > 0) {
+            updateReviewsLinkNotification(totalNewComments);
+        }
+        
+    } catch (error) {
+        console.error('Error verificando comentarios nuevos:', error);
+    }
+}
+
+function updateReviewsLinkNotification(count) {
+    // Buscar el enlace de "Mis Reseñas" en el sidebar
+    const reviewsLink = document.querySelector('a[href="reviews.html"]');
+    
+    if (reviewsLink && !reviewsLink.querySelector('.notification-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'notification-badge';
+        badge.textContent = count;
+        badge.style.cssText = `
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        `;
+        reviewsLink.appendChild(badge);
+        
+        // Agregar animación de pulso
+        if (!document.getElementById('pulse-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'pulse-animation-style';
+            style.textContent = `
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.1); opacity: 0.8; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+}
+
 function renderStats(stats) {
     const completedEl = document.getElementById('gamesCompletedCount');
     const playingEl = document.getElementById('gamesPlayingCount');
@@ -70,16 +135,12 @@ function renderStats(stats) {
     if (hoursEl) hoursEl.textContent = stats.totalHours || 0;
 }
 
-/**
- * Renderiza la actividad reciente en la tabla.
- * @param {Array<object>} entries - Lista de entradas de seguimiento recientes.
- */
 function renderRecentActivity(entries) {
     const tableBody = document.getElementById('recentActivityBody');
     
     if (!tableBody) return;
     
-    tableBody.innerHTML = ''; // Limpiar la tabla
+    tableBody.innerHTML = '';
 
     if (!entries || entries.length === 0) {
         tableBody.innerHTML = `
@@ -92,19 +153,15 @@ function renderRecentActivity(entries) {
         return;
     }
 
-    // ✅ CORREGIDO: Mostrar solo los 5 más recientes
     const recentEntries = entries.slice(0, 5);
 
     recentEntries.forEach(entry => {
-        // ✅ CORREGIDO: El nombre del juego está en "gameName", no en "gameId.title" ni "title"
         const gameTitle = entry.gameName || 'Sin título';
         
-        // ✅ CORREGIDO: Convertir rating de 1-10 a estrellas de 1-5
         const rating = entry.userRating 
             ? '⭐'.repeat(Math.min(5, Math.ceil(entry.userRating / 2))) 
             : 'N/A';
         
-        // Formatear fecha
         const date = entry.updatedAt 
             ? new Date(entry.updatedAt).toLocaleDateString('es-ES', {
                 day: '2-digit',
@@ -113,7 +170,6 @@ function renderRecentActivity(entries) {
             })
             : 'N/A';
 
-        // ✅ Color del badge según el estado
         const statusColor = getStatusBadgeColor(entry.status);
 
         const row = document.createElement('tr');
@@ -127,11 +183,6 @@ function renderRecentActivity(entries) {
     });
 }
 
-/**
- * Obtiene el color del badge según el estado
- * @param {string} status - Estado del juego
- * @returns {string} - Clase de Bootstrap para el color
- */
 function getStatusBadgeColor(status) {
     const colors = {
         'Completado': 'bg-success',
